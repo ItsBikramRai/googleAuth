@@ -56,7 +56,9 @@ app.use(passport.session());
 app.use("/api/v1/auth", authRouter)
 // Initialize Passport and session management
 
-
+app.get('/',(req,res)=>{
+  res.send("Im a Backend");
+})
 // // Google authentication route  
 // app.get(
 //   "/api/v1/auth/google",
