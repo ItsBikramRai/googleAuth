@@ -56,49 +56,9 @@ app.use(passport.session());
 app.use("/api/v1/auth", authRouter)
 // Initialize Passport and session management
 
-// Define the backend route
-app.get('/', (req, res) => {
-  res.send("I'm a Backend");
+app.get('/',(req,res)=>{
+  res.send("Im a Backend");
 });
-// // Google authentication route  
-// app.get(
-//   "/api/v1/auth/google",
-//   passport.authenticate("google", {
-//     scope: ["email", "profile"],
-//   })
-// );
-
-// // Google OAuth callback route
-// app.get(
-//   "/api/v1/auth/google/callback",
-//   passport.authenticate("google", {
-//     failureRedirect: "/api/v1/auth/google/failure",
-//   }),
-//   (req, res) => {
-//     res.redirect(`${process.env.CLIENT_URL}/auth-google`); // Update to frontend URL
-//   }
-// );
-
-// // Protected route
-// app.get("/api/v1/auth/protected", (req, res) => {
-//   if (req.isAuthenticated()) {
-//     return res.status(200).json({
-//       success: true,
-//       message: "Logged in successfully",
-//       user: {
-//         ...req.user._doc, // Spread user data
-//         password: undefined,
-//       },
-//     });
-//   } else {
-//     return res.status(401).json({ success: false, message: "Not authenticated" });
-//   }
-// });
-
-// // Failure route for Google OAuth
-// app.get("/api/v1/auth/google/failure", (req, res) => {
-//   res.send("Authentication failed.");
-// });
 
 //sercer start 
 const PORT = process.env.PORT || 7000;
