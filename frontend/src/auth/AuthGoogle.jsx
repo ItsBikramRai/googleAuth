@@ -15,7 +15,7 @@ export default function AuthGoogle() {
       const response = await API.get("/auth/protected", {
         withCredentials: true, // Ensure cookies are included
       });
-      console.log(response);
+      console.log(response)
       // console.log("response", response.data);
       if (response?.data?.success) {
         const userData = response?.data;
@@ -37,6 +37,11 @@ export default function AuthGoogle() {
       navigate("/login");
     }
   };
+
+  // Run `checkAuthStatus` after the user is redirected back
+  // useEffect(() => {
+  //   checkAuthStatus();
+  // }, []); // Empty dependency array ensures this runs only once after the component mounts
 
   return (
     <Layout>
