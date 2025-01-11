@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Layout from "../Layout/Layout";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../contextAPI/AuthContext";
@@ -8,52 +8,53 @@ import { API } from "../../API"; // Import the API helper
 export default function AuthGoogle() {
   const navigate = useNavigate();
   const { setAuth, setIsVerified } = useContext(AuthContext);
+  const [isProcessing, setIsProcessing] = useState(false); // Prevent duplicate processing
 
-  // Check the authentication status after redirecting back from Google
   const handleGoogleLogin = async () => {
+    if (isProcessing) return; // Prevent multiple calls
+    setIsProcessing(true); // Set processing state to true
+
     try {
       const response = await API.get("/auth/protected", {
         withCredentials: true, // Ensure cookies are included
       });
-      console.log(response)
-      // console.log("response", response.data);
+
       if (response?.data?.success) {
         const userData = response?.data;
-        localStorage.setItem("auth", JSON.stringify(userData));
-        setAuth({
-          user: userData?.user?.name,
-          data: userData?.user,
-        });
-        setIsVerified(userData?.user?.isVerified === true);
-        toast.success(response?.data?.message);
-        navigate("/");
-        // window.location.reload();
+        if (!localStorage.getItem("auth")) {
+          // Avoid duplicate toast by checking if user data is already set
+          localStorage.setItem("auth", JSON.stringify(userData));
+          setAuth({
+            user: userData?.user?.name,
+            data: userData?.user,
+          });
+          setIsVerified(userData?.user?.isVerified === true);
+          toast.success(response?.data?.message);
+        }
+        navigate("/"); // Redirect to home page
       } else {
         toast.error(response?.data?.message || "Login failed");
         navigate("/login");
       }
     } catch (error) {
+      console.error("Error during Google login:", error.message);
       toast.error(error?.message || "An error occurred during login");
       navigate("/login");
+    } finally {
+      setIsProcessing(false); // Reset processing state
     }
   };
 
-  // Run `checkAuthStatus` after the user is redirected back
-  // useEffect(() => {
-  //   checkAuthStatus();
-  // }, []); // Empty dependency array ensures this runs only once after the component mounts
+  useEffect(() => {
+    handleGoogleLogin();
+  }, []); 
 
   return (
     <Layout>
       <div className="flex flex-wrap justify-center text-center p-5">
         <h2 className="w-full text-2xl font-bold">Google Authentication</h2>
         <div className="w-full pt-5">
-          <button
-            onClick={handleGoogleLogin}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Confirm
-          </button>
+          <p className="text-lg">{isProcessing ? "Authenticating..." : "Please wait"}</p>
         </div>
       </div>
     </Layout>

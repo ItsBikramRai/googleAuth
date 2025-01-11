@@ -54,12 +54,19 @@ authRouter.get(
 authRouter.get(
   "/google/callback",
   passport.authenticate("google", {
-    failureRedirect: `${process.env.CLIENT_URL}/google/failure`,//redirect into frontend 
+    failureRedirect: `${process.env.CLIENT_URL}/google/failure`, // Redirect to frontend failure page
   }),
   (req, res) => {
-    res.redirect(`${process.env.CLIENT_URL}/auth-google`);
+    try {
+      // Redirect the user to the frontend with their session active
+      res.redirect(`${process.env.CLIENT_URL}/auth-google`);
+    } catch (error) {
+      console.error("Error during redirect:", error.message);
+      res.status(500).send("An error occurred during authentication.");
+    }
   }
 );
+
 
 // // Failure route for Google OAuth
 // authRouter.get("/google/failure", (req, res) => {

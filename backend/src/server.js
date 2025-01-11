@@ -26,10 +26,11 @@ const app = express();
 // Middleware setup
 app.use(
   cors({
-    origin: process.env.CLIENT_URL, // Update to match your frontend URL
-    credentials: true, // Allow cookies to be sent
+    origin: process.env.CLIENT_URL,
+    credentials: true, // Allow cookies
   })
 );
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
