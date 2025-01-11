@@ -1,7 +1,7 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import dotenv from "dotenv";
-import { User } from "../models/userModel.js"; 
+import { User } from "../models/userModel.js";
 
 // Load environment variables
 dotenv.config();
@@ -37,7 +37,9 @@ passport.use(
         // }
         if (!user) {
           // If email is not found, deny access
-          return done(null, false, { message: "Email not registered. Access denied." });
+          return done(null, false, {
+            message: "Email not registered. Access denied.",
+          });
         }
         return done(null, user); // Pass the user to Passport
       } catch (error) {
@@ -56,7 +58,7 @@ passport.serializeUser((user, done) => {
 // Deserialize user from the session
 passport.deserializeUser(async (id, done) => {
   try {
-    const user = await User.findById(id); 
+    const user = await User.findById(id);
     done(null, user);
   } catch (error) {
     done(error, null);
