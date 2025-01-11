@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { configDotenv } from "dotenv";
 import passport from "passport";
 import {
   loginController,
@@ -11,6 +12,8 @@ import {
   sendVerificationToken,
   protectedRoute,
 } from "../controllers/authController.js";
+configDotenv();
+const CLIENT_URL = process.env.CLIENT_URL;
 import { verifyTokenMiddleware } from "../middlewares/verifyTokenMiddleware.js";
 import { isAuthenticated } from "../middlewares/authMiddleware.js";
 // import { isAuthenticated } from "../middlewares/authMiddleware.js";
@@ -54,10 +57,10 @@ authRouter.get(
 authRouter.get(
   "/google/callback",
   passport.authenticate("google", {
-    failureRedirect: `${process.env.CLIENT_URL}/google/failure`,
+    failureRedirect: `${CLIENT_URL}/google/failure`,
   }),
   (req, res) => {
-    res.redirect(`${process.env.CLIENT_URL}/auth-google`);
+    res.redirect(`${CLIENT_URL}/auth-google`);
   }
 );
 
