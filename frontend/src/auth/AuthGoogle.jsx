@@ -38,11 +38,6 @@ export default function AuthGoogle() {
     }
   };
 
-  // Run `checkAuthStatus` after the user is redirected back
-  // useEffect(() => {
-  //   checkAuthStatus();
-  // }, []); // Empty dependency array ensures this runs only once after the component mounts
-
   return (
     <Layout>
       <div className="flex flex-wrap justify-center text-center p-5">
