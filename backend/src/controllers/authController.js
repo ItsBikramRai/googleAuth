@@ -1,7 +1,6 @@
 import { User } from "../models/userModel.js";
 import crypto from "crypto";
-import bcrypt from "bcrypt";
-import passport from "passport";
+import bcrypt from "bcryptjs";
 import { configDotenv } from "dotenv";
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
 import {
