@@ -14,7 +14,7 @@ export default function Header() {
   const handleGoogleLogin = async () => {
     try {
       // Redirect the user to the backend Google OAuth route
-      window.location.href = "https://googleauthbackend-p5qk.onrender.com/api/v1/auth/google";
+      window.location.href = `${import.meta.env.VITE_BACKEND_URL}/api/v1/auth/google`;
       // navigate('');
     } catch (error) {
       console.error(error.message);
