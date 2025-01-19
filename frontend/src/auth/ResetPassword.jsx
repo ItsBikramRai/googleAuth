@@ -1,23 +1,36 @@
 import React, { useState } from "react";
 import Layout from "../Layout/Layout";
-import { useNavigate, NavLink } from "react-router-dom";
+import { useNavigate, NavLink, useParams } from "react-router-dom";
+import { API } from "../../API";
+import { toast } from "react-toastify";
 
 export default function ResetPassword() {
   const [error, setError] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
-  const onSubmitHandler = (e) => {
+  const { token } = useParams(); 
+  const onSubmitHandler = async (e) => {
     e.preventDefault();
     // compare password
     if (password !== confirmPassword) {
       setError("password doesnot match !!");
       return;
     }
-    setConfirmPassword("");
-    setPassword("");
-    setError("");
-    navigate("/email-verify");
+    try {
+      const response = await API.post(`/auth/reset-password/${token}`, {
+        password,
+      });
+      if (response?.data?.success) {
+        toast.success("Password successfully changed");
+        setConfirmPassword("");
+        setPassword("");
+        setError("");
+        navigate("/login");
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message || error?.message);
+    }
   };
   return (
     <Layout>

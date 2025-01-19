@@ -226,47 +226,103 @@ export const forgotPasswordController = async (req, res) => {
 };
 
 // reset passsword
+// export const resetPasswordController = async (req, res) => {
+//   const { token } = req.params;
+//   const { password } = req.body;
+//   try {
+//     if (!password) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "please set your new password ",
+//       });
+//     }
+//     //hashed password
+//     const hashedPassword = await bcrypt.hash(password, 10);
+//     const user = await User.findOne({
+//       resetPasswordToken: token,
+//       resetPasswordExpiresAt: { $gt: Date.now() }, //expired or not
+//     });
+
+//     if (!user) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "user not found",
+//       });
+//     }
+//     user.password = hashedPassword,
+//       user.resetPasswordToken = undefined,
+//       user.resetPasswordExpiresAt = undefined,
+//       await user.save();
+//     await sendResetSuccessEmail(user.email);
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "successfully new password reseted",
+//     });
+//   } catch (error) {
+//     return res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
 export const resetPasswordController = async (req, res) => {
   const { token } = req.params;
   const { password } = req.body;
+
+  if (!password) {
+    return res.status(400).json({
+      success: false,
+      message: "Please provide a new password.",
+    });
+  }
+
   try {
-    if (!password) {
-      return res.status(400).json({
-        success: false,
-        message: "please set your new password ",
-      });
-    }
-    //hashed password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Validate password strength (can use a validation library)
+    // if (password.length < 8) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Password must be at least 8 characters long.",
+    //   });
+    // }
+
+    // Find user with valid token and non-expired timestamp
     const user = await User.findOne({
       resetPasswordToken: token,
-      resetPasswordExpiresAt: { $gt: Date.now() }, //expired or not
+      resetPasswordExpiresAt: { $gt: Date.now() },
     });
 
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: "user not found",
+        message: "Invalid or expired reset token.",
       });
     }
-    (user.password = hashedPassword),
-      (user.resetPasswordToken = undefined),
-      (user.resetPasswordExpiresAt = undefined),
-      await user.save();
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Update user password and reset fields
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpiresAt = undefined;
+    await user.save();
+
+    // Send success email
     await sendResetSuccessEmail(user.email);
 
     return res.status(200).json({
       success: true,
-      message: "successfully new password reseted",
+      message: "Password reset successfully.",
     });
   } catch (error) {
+    console.error("Password Reset Error:", error); // Log for debugging
     return res.status(500).json({
       success: false,
-      message: error.message,
+      message: "An error occurred while resetting the password.",
     });
   }
 };
-
 //check authorize of not
 export const checkAuthController = async (req, res) => {
   try {
@@ -370,10 +426,14 @@ export const protectedRoute = (req, res) => {
         },
       });
     } else {
-      res.status(401).json({ success: false, message: "Not authenticated" });
+      res
+      .status(401)
+      .json({
+         success: false, 
+         message: "Not authenticated" 
+        });
     }
   } catch (error) {
-    console.error("Error in protected route:", error.message);
     res.status(500).json({
       success: false,
       message: "Failed to fetch protected resource",

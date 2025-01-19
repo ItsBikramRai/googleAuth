@@ -1,6 +1,6 @@
 import React from 'react'
 import Layout from "../Layout/Layout"
-import { Link, NavLink } from "react-router-dom"
+import { NavLink } from "react-router-dom"
 
 export default function GoogleAuthError() {
   return (

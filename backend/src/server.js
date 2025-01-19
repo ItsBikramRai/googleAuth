@@ -6,6 +6,7 @@ import session from "express-session";
 import passport from "./config/passport-setup.js";
 import { connectDB } from "./config/mongoodeDB.js";
 import authRouter from "./routes/authRoutes.js";
+import { rateLimit } from 'express-rate-limit'
 
 dotenv.config();
 
@@ -35,6 +36,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+
 // Session management (ensure secure cookies for production)
 app.use(
   session({
@@ -48,7 +50,14 @@ app.use(
     },
   })
 );
-
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+	standardHeaders: 'draft-8', // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+	// store: ... , // Redis, Memcached, etc. See below.
+});
+app.use(limiter);
 // Initialize Passport and session management
 app.use(passport.initialize());
 app.use(passport.session());

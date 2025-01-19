@@ -35,7 +35,7 @@ export default function Login() {
         // window.location.reload();
       }
     } catch (error) {
-      toast.error(error?.response?.data?.message || error?.message);
+      toast.error(error?.response?.data?.message);
       // console.log("error", error);
       navigate("/");
     }

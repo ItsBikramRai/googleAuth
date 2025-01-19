@@ -13,7 +13,7 @@ import {
 } from "../controllers/authController.js";
 import { verifyTokenMiddleware } from "../middlewares/verifyTokenMiddleware.js";
 import { isAuthenticated } from "../middlewares/authMiddleware.js";
-// import { isAuthenticated } from "../middlewares/authMiddleware.js";
+
 
 const authRouter = Router();
 

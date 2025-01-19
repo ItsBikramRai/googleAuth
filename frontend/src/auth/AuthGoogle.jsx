@@ -37,8 +37,8 @@ export default function AuthGoogle() {
         navigate("/login");
       }
     } catch (error) {
-      console.error("Error during Google login:", error.message);
-      toast.error(error?.message || "An error occurred during login");
+      toast.error(error?.response?.data?.message || error?.message);
+      // console.log("error : ",error.response)
       navigate("/login");
     } finally {
       setIsProcessing(false); // Reset processing state
