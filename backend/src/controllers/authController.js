@@ -414,40 +414,73 @@ export const sendVerificationToken = async (req, res) => {
 };
 
 // // Google OAuth login
-import jwt from "jsonwebtoken";
-
 // Google OAuth callback
+import axios from 'axios';
+
+
+
 export const googleCallback = async (req, res) => {
   try {
-    const user = req.user; // User info from Passport
-    const token = jwt.sign(
-      {
-        userId: user.id,
-        email: user.email,
+    const { code } = req.query;
+
+    // Step 1: Exchange authorization code for access token
+    const response = await axios.post('https://oauth2.googleapis.com/token', {
+      code,
+      client_id: process.env.GOOGLE_CLIENT_ID,
+      client_secret: process.env.GOOGLE_CLIENT_SECRET,
+      redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+      grant_type: 'authorization_code',
+    });
+
+    const accessToken = response.data.access_token;
+
+    // Step 2: Use access token to get user info from Google
+    const userInfo = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
       },
+    });
+
+    const { sub, name, email } = userInfo.data;
+
+    // Step 3: Find or create user in the database
+    let user = await User.findOne({ googleId: sub });
+    if (!user) {
+      user = new User({
+        googleId: sub,
+        name,
+        email,
+        isVerified: true,
+      });
+      await user.save();
+    }
+
+    // Step 4: Create JWT token
+    const token = jwt.sign(
+      { userId: user._id, email: user.email, name: user.name },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: process.env.JWT_EXPIRE }
     );
 
-    // Optionally: Store token in an HTTP-only cookie for added security
-    res.cookie("jwt", token, {
+    // Step 5: Send the token in a HttpOnly cookie
+    res.cookie('jwt', token, {
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
+      maxAge: 3600000, // 1 hour
     });
 
     res.json({
       success: true,
-      message: "Logged in successfully!",
-      user,
-      token,
+      message: 'Logged in successfully',
+      user: { name, email },
     });
   } catch (error) {
-    console.error("Google callback error:", error.message);
-    res.status(500).json({
-      success: false,
-      message: "Authentication failed",
-    });
+    console.error('Error in Google OAuth callback:', error);
+    res.status(500).json({ success: false, message: 'Authentication failed' });
   }
 };
+
 
 // Protected route example
 export const protectedRoute = (req, res) => {
