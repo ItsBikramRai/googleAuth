@@ -17,7 +17,7 @@ export default function AuthGoogle() {
       setIsProcessing(true);
 
       // Call the protected route to verify user
-      const response = await API.get("/auth/protected");
+      const response = await API.get("/api/v1/auth/protected");
 
       if (response?.data?.success) {
         const userData = response.data;
