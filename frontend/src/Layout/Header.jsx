@@ -11,17 +11,16 @@ export default function Header() {
     navigate("/login");
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin = () => {
     try {
-      // Redirect the user to the backend Google OAuth route
-      window.location.href = `${
-        import.meta.env.VITE_BACKEND_URL
-      }/api/v1/auth/google`;
-      // navigate('');
+      // Redirect to the backend Google OAuth route
+      const backendUrl = import.meta.env.VITE_BACKEND_URL;
+      window.location.href = `${backendUrl}/api/v1/auth/google`;
     } catch (error) {
-      console.error(error.message);
+      console.error("Error during Google login:", error.message);
     }
   };
+  
   return (
     <div className="justify-end text-end flex-wrap flex-row p-5 bg-slate-950 text-white space-x-2">
       {auth?.user ? (

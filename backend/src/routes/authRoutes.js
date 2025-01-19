@@ -10,6 +10,9 @@ import {
   checkAuthController,
   sendVerificationToken,
   protectedRoute,
+  googleCallback,
+  googleFailure,
+
 } from "../controllers/authController.js";
 import { verifyTokenMiddleware } from "../middlewares/verifyTokenMiddleware.js";
 import { isAuthenticated } from "../middlewares/authMiddleware.js";
@@ -41,8 +44,7 @@ authRouter.post("/reset-password/:token", resetPasswordController);
 authRouter.post("/send-token", sendVerificationToken);
 
 authRouter.get("/");
-
-// Google authentication route
+// Google OAuth entry point
 authRouter.get(
   "/google",
   passport.authenticate("google", {
@@ -50,30 +52,18 @@ authRouter.get(
   })
 );
 
-// Google OAuth callback route
+// Google OAuth callback
 authRouter.get(
   "/google/callback",
   passport.authenticate("google", {
-    failureRedirect: `${process.env.CLIENT_URL}/google/failure`, // Redirect to frontend failure page
+    failureRedirect: `${process.env.CLIENT_URL}/google/failure`,
   }),
-  (req, res) => {
-    try {
-      // Redirect the user to the frontend with their session active
-      res.redirect(`${process.env.CLIENT_URL}/auth-google`);
-    } catch (error) {
-      console.error("Error during redirect:", error.message);
-      res.status(500).send("An error occurred during authentication.");
-    }
-  }
+  googleCallback
 );
 
+// Google failure route
+authRouter.get("/google/failure", googleFailure);
 
-// // Failure route for Google OAuth
-// authRouter.get("/google/failure", (req, res) => {
-//   res.status(401).send("Authentication failed.");
-// });
-
-// Protected route (authentication required)
+// Protected route
 authRouter.get("/protected", isAuthenticated, protectedRoute);
-
 export default authRouter;

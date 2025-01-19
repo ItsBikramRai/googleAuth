@@ -414,29 +414,67 @@ export const sendVerificationToken = async (req, res) => {
 };
 
 // // Google OAuth login
+import jwt from "jsonwebtoken";
+
+// Google OAuth callback
+export const googleCallback = async (req, res) => {
+  try {
+    const user = req.user; // User info from Passport
+    const token = jwt.sign(
+      {
+        userId: user.id,
+        email: user.email,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    // Optionally: Store token in an HTTP-only cookie for added security
+    res.cookie("jwt", token, {
+      httpOnly: true,
+    });
+
+    res.json({
+      success: true,
+      message: "Logged in successfully!",
+      user,
+      token,
+    });
+  } catch (error) {
+    console.error("Google callback error:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Authentication failed",
+    });
+  }
+};
+
+// Protected route example
 export const protectedRoute = (req, res) => {
   try {
     if (req.isAuthenticated()) {
       res.status(200).json({
         success: true,
-        message: "Logged in successfully",
-        user: {
-          ...req.user._doc, // Spread user data
-          password: undefined,
-        },
+        message: "Access granted",
+        user: req.user,
       });
     } else {
-      res
-      .status(401)
-      .json({
-         success: false, 
-         message: "Not authenticated" 
-        });
+      res.status(401).json({
+        success: false,
+        message: "Not authenticated",
+      });
     }
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch protected resource",
+      message: "An error occurred",
     });
   }
+};
+
+export const googleFailure = (req, res) => {
+  res.status(401).json({
+    success: false,
+    message: "Google authentication failed. Please try again.",
+  });
 };
